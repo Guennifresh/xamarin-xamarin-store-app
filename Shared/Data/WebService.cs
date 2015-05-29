@@ -52,7 +52,7 @@ namespace XamarinStore
 		public async Task<List<Product>> GetProducts()
 		{
 			if (products == null) {
-				products = await Task.Factory.StartNew (() => {
+				products = await Task.Run (() => {
 					try {
 						string extraParams = "";
 
@@ -81,7 +81,7 @@ namespace XamarinStore
 			#pragma warning disable 4014
 			GetCountries ();
 			#pragma warning restore 4014
-			await Task.Factory.StartNew (() => {
+			await Task.Run (() => {
 				var imagUrls = products.SelectMany (x => x.ImageUrls.Select (y => Product.ImageForSize (y, imageWidth))).ToList ();
 				imagUrls.ForEach( async (x) => await FileCache.Download(x));
 
@@ -92,7 +92,7 @@ namespace XamarinStore
 		List<Country> countries = new List<Country>();
 		public Task<List<Country>> GetCountries()
 		{
-			return Task.Factory.StartNew (() => {
+			return Task.Run (() => {
 				try {
 
 					if(countries.Count > 0)
@@ -196,7 +196,7 @@ namespace XamarinStore
 			
 
 		public Task<OrderResult> PlaceOrder (User user, bool verify = false) {
-			return Task.Factory.StartNew (() => {
+			return Task.Run (() => {
 				try {
 					var content = Encoding.UTF8.GetBytes (CurrentOrder.GetJson (user));
 
