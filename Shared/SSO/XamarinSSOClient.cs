@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Xamarin.SSO.Client {
     public class XamarinSSOClient {
@@ -47,20 +48,20 @@ namespace Xamarin.SSO.Client {
             }
         }
 
-        protected virtual string DoRequest (string endpoint, string method = "GET", string body = null)
+        protected virtual async Task<string> DoRequestAsync (string endpoint, string method = "GET", string body = null)
         {
             string result = null;
             WebRequest req = SetupRequest (method, endpoint);
             if (body != null) {
                 byte [] bytes = encoding.GetBytes (body.ToString ());
                 req.ContentLength = bytes.Length;
-                using (Stream st = req.GetRequestStream ()) {
+                using (Stream st = await req.GetRequestStreamAsync ().ConfigureAwait (false)) {
                     st.Write (bytes, 0, bytes.Length);
                 }
             }
 
             try {
-                using (WebResponse resp = (WebResponse) req.GetResponse ()) {
+                using (WebResponse resp = await  req.GetResponseAsync ()) {
                     result = GetResponseAsString (resp);
                 }
             } catch (WebException) {
@@ -69,7 +70,7 @@ namespace Xamarin.SSO.Client {
             return result;
         }
 
-        public AccountResponse CreateToken (string email, string password)
+        public async Task<AccountResponse> CreateTokenAsync (string email, string password)
         {
             if (String.IsNullOrWhiteSpace (email))
                 throw new ArgumentNullException ("email");
@@ -77,7 +78,7 @@ namespace Xamarin.SSO.Client {
                 throw new ArgumentNullException ("password");
 
             var str = String.Format ("email={0}&password={1}", UrlEncode (email), UrlEncode (password));
-            string json = DoRequest (auth_api_url, "POST", str);
+            string json = await DoRequestAsync (auth_api_url, "POST", str).ConfigureAwait (false);
             return JsonConvert.DeserializeObject<AccountResponse> (json);
         }
 

@@ -11,6 +11,7 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Shared.Helpers;
 
 namespace XamarinStore
 {
@@ -122,9 +123,8 @@ namespace XamarinStore
 
 			orderImage.SetImageResource (Resource.Drawable.blue_shirt);
 			//No need to wait for the async download to return the view
-			#pragma warning disable 4014
-			orderImage.SetImageFromUrlAsync (product.ImageForSize (Images.ScreenWidth));
-			#pragma warning restore 4014
+			orderImage.SetImageFromUrlAsync (product.ImageForSize (Images.ScreenWidth))
+                .FireAndForget();
 			return view;
 		}
 	}

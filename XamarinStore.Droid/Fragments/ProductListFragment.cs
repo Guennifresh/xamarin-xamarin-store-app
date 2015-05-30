@@ -10,6 +10,8 @@ using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Views.Animations;
+using Shared.Helpers;
+using System.Threading.Tasks;
 
 namespace XamarinStore
 {
@@ -39,18 +41,17 @@ namespace XamarinStore
 			ListView.Selector = new ColorDrawable (new Android.Graphics.Color (0x30ffffff));
 			if (ListAdapter == null) {
 				ListAdapter = new ProductListViewAdapter (view.Context);
-				GetData ();
+				GetDataAsync ().FireAndForget();
 			}
 		}
 
-		async void GetData ()
+		async Task GetDataAsync ()
 		{
 			var adapter = (ProductListViewAdapter)ListAdapter;
-			adapter.Products = await WebService.Shared.GetProducts ();
+			adapter.Products = await WebService.Shared.GetProductsAsync ();
 			//No need to await the precache, we just need to kick it off
-			#pragma warning disable 4014
-			WebService.Shared.PreloadImages (Images.ScreenWidth);
-			#pragma warning restore 4014
+			WebService.Shared.PreloadImagesAsync (Images.ScreenWidth)
+                .FireAndForget();
 			adapter.NotifyDataSetChanged ();
 		}
 
@@ -128,7 +129,7 @@ namespace XamarinStore
 				nameLabel.Text = product.Name;
 				priceLabel.Text = product.PriceDescription;
 
-				LoadProductImage (convertView, progressView, imageView, product);
+				LoadProductImageAsync (convertView, progressView, imageView, product).FireAndForget();
 
 				if (((newItems >> position) & 1) == 0) {
 					newItems |= 1L << position;
@@ -150,7 +151,7 @@ namespace XamarinStore
 				return convertView;
 			}
 
-			async void LoadProductImage (View mainView, ProgressBar progressView, ImageView imageView, Product product)
+			async Task LoadProductImageAsync (View mainView, ProgressBar progressView, ImageView imageView, Product product)
 			{
 				var currentId = mainView.Id;
 				progressView.Visibility = ViewStates.Visible;

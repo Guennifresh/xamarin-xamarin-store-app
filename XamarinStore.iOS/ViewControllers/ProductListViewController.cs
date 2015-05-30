@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 using UIKit;
 using Foundation;
+using Shared.Helpers;
+using System.Threading.Tasks;
 
 namespace XamarinStore.iOS
 {
@@ -29,16 +31,15 @@ namespace XamarinStore.iOS
 				ProductTapped (products);
 			});
 
-			GetData ();
+			GetDataAsync ().FireAndForget();
 		}
 
-		async void GetData ()
+		async Task GetDataAsync ()
 		{
-			source.Products = await WebService.Shared.GetProducts ();
+			source.Products = await WebService.Shared.GetProductsAsync ();
 			//Kicking off a task no need to await
-			#pragma warning disable 4014
-			WebService.Shared.PreloadImages (320 * (float)UIScreen.MainScreen.Scale);
-			#pragma warning restore 4014
+			WebService.Shared.PreloadImagesAsync (320 * (float)UIScreen.MainScreen.Scale)
+                .FireAndForget();
 			TableView.ReloadData ();
 		}
 
@@ -105,7 +106,7 @@ namespace XamarinStore.iOS
 			void updateImage()
 			{
 				var url = product.ImageForSize ((float)ImageWidth);
-				imageView.LoadUrl (url);
+				imageView.LoadUrlAsync (url).FireAndForget();
 			}
 
 			public ProductListCell ()

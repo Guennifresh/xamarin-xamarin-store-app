@@ -12,6 +12,7 @@ using Android.Views;
 using Android.Widget;
 using Android.Views.InputMethods;
 using System.Threading.Tasks;
+using Shared.Helpers;
 
 namespace XamarinStore
 {
@@ -67,7 +68,8 @@ namespace XamarinStore
 			user.Country = string.IsNullOrEmpty (user.Country) ? "United States" : user.Country;
 			country.Text = user.Country;
 			country.ItemSelected += (object sender, AdapterView.ItemSelectedEventArgs e) => {
-				LoadStates();
+				LoadStatesAsync()
+                    .FireAndForget();
 			};
 
 			placeOrder.Click += async (sender, e) => {
@@ -84,25 +86,27 @@ namespace XamarinStore
 				user.City = city.Text;
 				user.State = state.Text;
 				user.ZipCode = postalCode.Text;
-				user.Country = await WebService.Shared.GetCountryCode(country.Text);
+				user.Country = await WebService.Shared.GetCountryCodeAsync(country.Text);
 				await ProcessOrder();
 				foreach (var entry in entries)
 					entry.Enabled = true;
 			};
-			LoadCountries ();
-			LoadStates ();
+			LoadCountriesAsync ()
+                .FireAndForget();
+			LoadStatesAsync ()
+                .FireAndForget();
 			return 	shippingDetailsView;
 		}
 
-		async void LoadCountries()
+		async Task LoadCountriesAsync()
 		{
-			var countries = await WebService.Shared.GetCountries ();
+			var countries = await WebService.Shared.GetCountriesAsync ();
 			country.Adapter = new ArrayAdapter(this.Activity, Android.Resource.Layout.SimpleDropDownItem1Line, countries.Select(x=> x.Name).ToList());
 		}
 
-		async void LoadStates()
+		async Task LoadStatesAsync()
 		{
-			var states = await WebService.Shared.GetStates (country.Text);
+			var states = await WebService.Shared.GetStatesAsync (country.Text);
 			state.Adapter = new ArrayAdapter(this.Activity, Android.Resource.Layout.SimpleDropDownItem1Line, states);
 		}
 
@@ -115,7 +119,7 @@ namespace XamarinStore
 			}
 
 			var progressDialog = ProgressDialog.Show(this.Activity, "Please wait...", "Placing Order", true);
-			var result = await WebService.Shared.PlaceOrder (user);
+			var result = await WebService.Shared.PlaceOrderAsync (user);
 			progressDialog.Hide ();
 			progressDialog.Dismiss ();
 			string message = result.Success ? "Your order has been placed!" : "Error: " + result.Message;

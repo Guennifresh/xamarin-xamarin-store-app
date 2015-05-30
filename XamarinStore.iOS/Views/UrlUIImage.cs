@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Shared.Helpers;
+using System;
+using System.Threading.Tasks;
 using UIKit;
 
 namespace XamarinStore
@@ -20,15 +22,15 @@ namespace XamarinStore
 			}
 			set {
 				url = value;
-				DownloadImage ();
+				DownloadImageAsync ().FireAndForget();
 			}
 		}
 
-		async void DownloadImage ()
+		async Task DownloadImageAsync ()
 		{
 			if (string.IsNullOrEmpty (url))
 				return;
-			var t = FileCache.Download (url);
+			var t = FileCache.DownloadAsync (url);
 			if (t.IsCompleted) {
 				Image = UIImage.FromFile(t.Result);
 				return;

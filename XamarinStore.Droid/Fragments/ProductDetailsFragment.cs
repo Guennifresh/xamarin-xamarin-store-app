@@ -11,6 +11,8 @@ using System.Linq.Expressions;
 using Android.Util;
 using Android.Animation;
 using Android.Graphics;
+using Shared.Helpers;
+using System.Threading.Tasks;
 
 namespace XamarinStore
 {
@@ -140,9 +142,8 @@ namespace XamarinStore
 				return;
 			if (images.Length == 1) {
 				//No need to await the change
-				#pragma warning disable 4014
-				Images.SetImageFromUrlAsync (productImage, Product.ImageForSize (images [0], Images.ScreenWidth));
-				#pragma warning restore 4014
+				Images.SetImageFromUrlAsync (productImage, Product.ImageForSize (images [0], Images.ScreenWidth))
+                    .FireAndForget();
 				return;
 			}
 
@@ -179,11 +180,11 @@ namespace XamarinStore
 			kenBurnsAlpha.SetDuration (kenBurnsMovement.Duration);
 			kenBurnsAlpha.RepeatMode = ValueAnimatorRepeatMode.Reverse;
 			kenBurnsAlpha.RepeatCount = ValueAnimator.Infinite;
-			kenBurnsAlpha.AnimationRepeat += (sender, e) => NextImage ();
+			kenBurnsAlpha.AnimationRepeat += (sender, e) => NextImageAsync ().FireAndForget();
 			kenBurnsAlpha.Start ();
 		}
 
-		async void NextImage ()
+		async Task NextImageAsync ()
 		{
 			currentIndex = (currentIndex + 1) % images.Length;
 			var image = images [currentIndex];
@@ -200,9 +201,8 @@ namespace XamarinStore
 			var next = currentIndex + 1;
 			var image = images [next];
 			//No need to await the precache to finish
-			#pragma warning disable 4014
-			FileCache.Download (Product.ImageForSize (image, Images.ScreenWidth));
-			#pragma warning restore 4014
+			FileCache.DownloadAsync (Product.ImageForSize (image, Images.ScreenWidth))
+                .FireAndForget();
 		}
 	}
 }

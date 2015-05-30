@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Twitter;
 using System.Linq;
 using Foundation;
+using Shared.Helpers;
 
 namespace XamarinStore.iOS
 {
@@ -29,8 +30,8 @@ namespace XamarinStore.iOS
 			base.LoadView ();
 			View.BackgroundColor = UIColor.Gray;
 			View.AddSubview(proccessView = new ProcessingView {
-				TryAgain = ProcessOrder
-			});
+				TryAgain = () => ProcessOrderAsync().FireAndForget()
+            });
 		}
 		public override void ViewDidLayoutSubviews ()
 		{
@@ -40,7 +41,8 @@ namespace XamarinStore.iOS
 		public override void ViewDidAppear (bool animated)
 		{
 			base.ViewDidAppear (animated);
-			ProcessOrder ();
+			ProcessOrderAsync ()
+                .FireAndForget();
 		}
 		public override void ViewWillAppear (bool animated)
 		{
@@ -51,10 +53,10 @@ namespace XamarinStore.iOS
 			NavigationController.NavigationBar.BarStyle = UIBarStyle.Black;
 		}
 
-		async void ProcessOrder ()
+		async Task ProcessOrderAsync ()
 		{
 			proccessView.SpinGear ();
-			var result = await WebService.Shared.PlaceOrder (user);
+			var result = await WebService.Shared.PlaceOrderAsync (user);
 			proccessView.Status = result.Success ? "Your order has been placed!" : result.Message;;
 			await proccessView.StopGear ();
 			if (!result.Success) {
@@ -71,28 +73,28 @@ namespace XamarinStore.iOS
 			var view = new SuccessView {
 				Frame = View.Bounds,
 				Close = () => DismissViewController(true,null),
-				Tweet = tweet,
+				Tweet = () => TweetAsync().FireAndForget(),
 			};
 			View.AddSubview(view);
 			UIView.Animate (.3, () => {
 				proccessView.Alpha = 0f;
 			});
-			view.AnimateIn ();
+			view.AnimateIn ().FireAndForget();
 		}
-		async void tweet()
+		async Task TweetAsync()
 		{
 			var tvc = new Twitter.TWTweetComposeViewController();
-			var products = await WebService.Shared.GetProducts();
+			var products = await WebService.Shared.GetProductsAsync();
 			if(products.Count > 0){
 				products.Shuffle ();
 
 				var imageUrl = products.First ().ImageUrl;
-				var imagePath = await FileCache.Download (imageUrl);
+				var imagePath = await FileCache.DownloadAsync (imageUrl);
 				tvc.AddImage (UIImage.FromFile (imagePath));
 			}
 			tvc.AddUrl (NSUrl.FromString("http://xamarin.com/sharp-shirt"));
 			tvc.SetInitialText("I just built a native iOS app with C# using #Xamarin and all I got was this free C# t-shirt!");
-			PresentViewControllerAsync(tvc, true);
+			await PresentViewControllerAsync(tvc, true);
 		}
 
 		class ProcessingView : UIView
@@ -309,7 +311,7 @@ namespace XamarinStore.iOS
 				twitter.Frame = frame;
 
 			}
-			public async void AnimateIn()
+			public async Task AnimateIn()
 			{
 				yOffset = 20;
 				LayoutSubviews ();

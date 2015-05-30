@@ -8,7 +8,7 @@ namespace XamarinStore
 {
 	public static class UIImageExtensions
 	{
-		public static async Task LoadUrl(this UIImageView imageView, string url)
+		public static async Task LoadUrlAsync(this UIImageView imageView, string url)
 		{	
 			if (string.IsNullOrEmpty (url))
 				return;
@@ -19,7 +19,7 @@ namespace XamarinStore
 			imageView.AddSubview (progress);
 
 		
-			var t = FileCache.Download (url);
+			var t = FileCache.DownloadAsync (url);
 			if (t.IsCompleted) {
 				imageView.Image = UIImage.FromFile(t.Result);
 				progress.RemoveFromSuperview ();

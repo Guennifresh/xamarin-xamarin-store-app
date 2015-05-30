@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Data\Gravatar.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Data\WebService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\ListExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\TaskExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Country.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Order.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\OrderResult.cs" />

@@ -12,24 +12,24 @@ namespace XamarinStore
 	{
 
 		public static string SaveLocation;
-		public static async Task<string> Download(string url)
+		public static async Task<string> DownloadAsync(string url)
 		{
 			if (string.IsNullOrEmpty (SaveLocation))
 				throw new Exception ("Save location is required");
 			var fileName = md5 (url);
 
-			return await Download (url, fileName);
+			return await DownloadAsync(url, fileName);
 		}
 
 		static object locker = new object ();
-		public static async Task<string> Download(string url, string fileName)
+		public static async Task<string> DownloadAsync(string url, string fileName)
 		{
 			try{
 				var path = Path.Combine (SaveLocation, fileName);
 				if (File.Exists (path))
 					return path;
 					
-				await GetDownload(url,path);
+				await GetDownloadAsync(url,path).ConfigureAwait(false);
 
 				return path;
 			}
@@ -40,7 +40,7 @@ namespace XamarinStore
 		}
 
 		static Dictionary<string,Task> downloadTasks = new Dictionary<string, Task> ();
-		static Task GetDownload(string url, string fileName)
+		static Task GetDownloadAsync(string url, string fileName)
 		{
 			lock (locker) {
 				Task task;

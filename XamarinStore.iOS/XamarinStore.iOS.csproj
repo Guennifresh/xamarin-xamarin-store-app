@@ -220,14 +220,13 @@
     <BundleResource Include="Resources\circle.png" />
     <BundleResource Include="Resources\circle%402x.png" />
   </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <BundleResource Include="Resources\button-image.png" />
-  </ItemGroup>
   <ItemGroup>
     <XamarinComponentReference Include="btprogresshud">
-      <Version>1.15</Version>
       <Visible>False</Visible>
+      <Version>1.16</Version>
     </XamarinComponentReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\button-image.png" />
   </ItemGroup>
 </Project>

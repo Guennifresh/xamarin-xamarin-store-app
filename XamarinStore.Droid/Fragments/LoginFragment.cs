@@ -11,6 +11,8 @@ using Android.Views;
 using Android.Widget;
 using Android.Text;
 using Android.Graphics;
+using System.Threading.Tasks;
+using Shared.Helpers;
 
 namespace XamarinStore
 {
@@ -62,7 +64,8 @@ namespace XamarinStore
 			var view = inflater.Inflate (Resource.Layout.LoginScreen, null);
 
 			imageView = view.FindViewById<ImageView> (Resource.Id.imageView1);
-			LoadUserImage ();
+			LoadUserImageAsync ()
+                .FireAndForget();
 
 			var textView = view.FindViewById<EditText> (Resource.Id.email);
 			textView.Enabled = false;
@@ -71,12 +74,13 @@ namespace XamarinStore
 			password = view.FindViewById<EditText> (Resource.Id.password);
 			login = view.FindViewById<Button> (Resource.Id.signInBtn);
 			login.Click += (object sender, EventArgs e) => {
-				Login(XamarinAccountEmail,password.Text);
+				LoginAsync(XamarinAccountEmail,password.Text)
+                    .FireAndForget();
 			};
 			return view;
 		}
 
-		async void LoadUserImage()
+		async Task LoadUserImageAsync()
 		{
 			//Get the correct size in pixels
 			var px = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 85, Activity.Resources.DisplayMetrics);
@@ -88,14 +92,14 @@ namespace XamarinStore
 		// TODO: Enter your Xamarin account email address here
 		// If you do not have a Xamarin Account please sign up here: https://store.xamarin.com/account/register
 		readonly string XamarinAccountEmail = "";
-		async void Login (string username, string password)
+		async Task LoginAsync (string username, string password)
 		{
 			var progressDialog = ProgressDialog.Show (this.Activity, "Please wait...", "Logging in", true);
 			this.login.Enabled = false;
 			this.password.Enabled = false;
-			var success = await WebService.Shared.Login (username, password);
+			var success = await WebService.Shared.LoginAsync (username, password);
 			if (success) {
-				var canContinue = await WebService.Shared.PlaceOrder (WebService.Shared.CurrentUser, true);
+				var canContinue = await WebService.Shared.PlaceOrderAsync (WebService.Shared.CurrentUser, true);
 				if (!canContinue.Success) {
 					Toast.MakeText (this.Activity,"Sorry, only one shirt per person. Edit your cart and try again.", ToastLength.Long).Show();
 				}

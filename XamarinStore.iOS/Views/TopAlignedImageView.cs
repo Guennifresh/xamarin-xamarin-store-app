@@ -6,6 +6,7 @@ using System.Text;
 using UIKit;
 using Foundation;
 using CoreGraphics;
+using System.Threading.Tasks;
 
 namespace XamarinStore
 {
@@ -48,11 +49,11 @@ namespace XamarinStore
 			frame.Height = origionalSize.Height * scale;
 			ImageView.Frame = frame;
 		}
-		public async void LoadUrl(string url)
+		public async Task LoadUrlAsync(string url)
 		{
 			if (string.IsNullOrEmpty (url))
 				return;
-			var t = FileCache.Download (url);
+			var t = FileCache.DownloadAsync (url);
 			if (t.IsCompleted) {
 				Image = UIImage.FromFile(t.Result);
 				return;

@@ -44,7 +44,7 @@ namespace XamarinStore
 			Bitmap bmp;
 			if (bmpCache.TryGetValue (url, out bmp))
 				return bmp;
-			var path = await FileCache.Download(url);
+			var path = await FileCache.DownloadAsync(url);
 			if (string.IsNullOrEmpty (path))
 				return null;
 			bmp = await BitmapFactory.DecodeFileAsync (path);

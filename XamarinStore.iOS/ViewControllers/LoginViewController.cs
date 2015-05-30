@@ -2,6 +2,8 @@ using System;
 using UIKit;
 using BigTed;
 using Foundation;
+using System.Threading.Tasks;
+using Shared.Helpers;
 
 namespace XamarinStore.iOS
 {
@@ -48,7 +50,7 @@ namespace XamarinStore.iOS
 				scrollView.Add (ContentView = new PrefillXamarinAccountInstructionsView ());
 			} else {
 				LoginView = new LoginView (XamarinAccountEmail);
-				LoginView.UserDidLogin += _ => Login (XamarinAccountEmail, LoginView.PasswordField.Text);
+				LoginView.UserDidLogin += _ => LoginAsync (XamarinAccountEmail, LoginView.PasswordField.Text).FireAndForget();
 				scrollView.Add (ContentView = LoginView);
 			}
 		}
@@ -83,14 +85,14 @@ namespace XamarinStore.iOS
 		// TODO: Enter your Xamarin account email address here
 		// If you do not have a Xamarin Account please sign up here: https://store.xamarin.com/account/register
 		readonly string XamarinAccountEmail = "";
-		async void Login (string username, string password)
+		async Task LoginAsync (string username, string password)
 		{
 
 			BTProgressHUD.Show ("Logging in...");
 
-			var success = await WebService.Shared.Login (username, password);
+			var success = await WebService.Shared.LoginAsync (username, password);
 			if (success) {
-				var canContinue = await WebService.Shared.PlaceOrder (WebService.Shared.CurrentUser, true);
+				var canContinue = await WebService.Shared.PlaceOrderAsync (WebService.Shared.CurrentUser, true);
 				if (!canContinue.Success) {
 					new UIAlertView ("Sorry", "Only one shirt per person. Edit your cart and try again.", null, "OK").Show();
 					BTProgressHUD.Dismiss ();

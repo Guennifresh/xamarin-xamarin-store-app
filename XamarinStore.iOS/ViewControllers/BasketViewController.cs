@@ -5,6 +5,7 @@ using System.Drawing;
 using CoreAnimation;
 using System.Linq;
 using System.Threading.Tasks;
+using Shared.Helpers;
 
 namespace XamarinStore
 {
@@ -117,9 +118,8 @@ namespace XamarinStore
 			{
 				var cell = tableView.DequeueReusableCell (ProductCell.Key) as ProductCell ?? new ProductCell ();
 				//No need to wait to return the cell It will update when the data is ready
-				#pragma warning disable 4014
-				cell.Update (order.Products [indexPath.Row]);
-				#pragma warning restore 4014
+				cell.UpdateAsync (order.Products [indexPath.Row])
+                    .FireAndForget();
 				return cell;
 			}
 
@@ -240,13 +240,13 @@ namespace XamarinStore
 
 				}
 
-				public async Task Update (Product product)
+				public async Task UpdateAsync (Product product)
 				{
 					NameLabel.Text = product.Name;
 					SizeLabel.Text = product.Size.Description;
 					ColorLabel.Text = product.Color.Name;
 					PriceLabel.Text = product.PriceDescription;
-					var imageTask = FileCache.Download (product.ImageForSize (320));
+					var imageTask = FileCache.DownloadAsync (product.ImageForSize (320));
 					if(!imageTask.IsCompleted)
 						//Put default before doing the web request;
 						ImageView.Image = Image.Value;

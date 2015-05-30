@@ -4,6 +4,8 @@ using System.Drawing;
 using Foundation;
 using UIKit;
 using CoreGraphics;
+using System.Threading.Tasks;
+using Shared.Helpers;
 
 namespace XamarinStore
 {
@@ -29,7 +31,7 @@ namespace XamarinStore
 			GravatarView.Layer.CornerRadius = GravatarSize.Width / 2;
 			GravatarView.Layer.MasksToBounds = true;
 
-			DisplayGravatar (xamarinAccountEmail);
+			DisplayGravatarAsync (xamarinAccountEmail).FireAndForget();
 
 			AddConstraint (NSLayoutConstraint.Create (
 				GravatarView,
@@ -117,7 +119,7 @@ namespace XamarinStore
 			PasswordField.BecomeFirstResponder ();
 		}
 
-		async void DisplayGravatar (string email)
+		async Task DisplayGravatarAsync (string email)
 		{
 			NSData data;
 

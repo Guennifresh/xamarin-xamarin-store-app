@@ -5,6 +5,8 @@ using Foundation;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
+using Shared.Helpers;
 
 namespace XamarinStore
 {
@@ -78,7 +80,7 @@ namespace XamarinStore
 				PlaceHolder = "Country",
 				Title = "Select your Country",
 				Value = user.Country,
-				ValueChanged = (v) => GetStates (),
+				ValueChanged = (v) => GetStatesAsync ().FireAndForget(),
 				PresenterView = this,
 			}));
 
@@ -90,8 +92,8 @@ namespace XamarinStore
 			}));
 
 
-			GetCountries ();
-			GetStates ();
+			GetCountriesAsync ().FireAndForget();
+			GetStatesAsync ().FireAndForget();
 
 			TableView.Source = new ShippingAddressPageSource { Cells = Cells };
 			TableView.TableFooterView = new UIView (new RectangleF (0, 0, 0, BottomButtonView.Height));
@@ -99,19 +101,19 @@ namespace XamarinStore
 
 			View.AddSubview (BottomView = new BottomButtonView () {
 				ButtonText = "Place Order",
-				ButtonTapped = PlaceOrder,
+				ButtonTapped = () => PlaceOrderAsync().FireAndForget(),
 			});
 
 		}
 
-		public async void PlaceOrder()
+		public async Task PlaceOrderAsync()
 		{
 			user.FirstName = FirstNameField.Value;
 			user.LastName = LastNameField.Value;
 			user.Address = AddressField.Value;
 			user.Address2 = Address2Field.Value;
 			user.City = CityField.Value;
-			user.Country = await WebService.Shared.GetCountryCode(CountryField.Value);
+			user.Country = await WebService.Shared.GetCountryCodeAsync(CountryField.Value);
 			user.Phone = PhoneNumberField.Value;
 			user.State = StateField.Value;
 			user.ZipCode = PostalField.Value;
@@ -129,15 +131,15 @@ namespace XamarinStore
 			base.ViewWillAppear (animated);
 		}
 
-		async void GetCountries ()
+		async Task GetCountriesAsync ()
 		{
-			var countries = await WebService.Shared.GetCountries ();
+			var countries = await WebService.Shared.GetCountriesAsync ();
 			CountryField.Items = countries.Select (x => x.Name);
 		}
 
-		async void GetStates ()
+		async Task GetStatesAsync ()
 		{
-			var states = await WebService.Shared.GetStates (CountryField.Value);
+			var states = await WebService.Shared.GetStatesAsync (CountryField.Value);
 			StateField.Items = states;
 		}
 

@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using CoreGraphics;
 using CoreAnimation;
+using Shared.Helpers;
 
 namespace XamarinStore.iOS
 {
@@ -134,7 +135,7 @@ namespace XamarinStore.iOS
 				Images = Enumerable.Range(0,imageUrls.Length).Select(x=> new UIImage()).ToList(),
 				UserInteractionEnabled = false,
 			};
-			loadImages ();
+			loadImagesAsync ().FireAndForget();
 			var productDescriptionView = new ProductDescriptionView (CurrentProduct) {
 				Frame = new RectangleF (0, 0, 320, 120),
 			};
@@ -149,10 +150,10 @@ namespace XamarinStore.iOS
 		}
 
 
-		async void loadImages()
+		async Task loadImagesAsync()
 		{
 			for (int i = 0; i < imageUrls.Length; i++) {
-				var path = await FileCache.Download (Product.ImageForSize (imageUrls [i], 320 * (float)UIScreen.MainScreen.Scale));
+				var path = await FileCache.DownloadAsync (Product.ImageForSize (imageUrls [i], 320 * (float)UIScreen.MainScreen.Scale));
 				imageView.Images [i] = UIImage.FromFile (path);
 			}
 		}
